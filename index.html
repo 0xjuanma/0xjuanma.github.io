@@ -194,6 +194,9 @@
         }
 
         .project-card {
+            --glow-border: #f78166;
+            --glow-shadow-strong: rgba(247, 129, 102, 0.35);
+            --glow-shadow-soft: rgba(247, 129, 102, 0.2);
             background: #111111;
             border: 1px solid #333333;
             border-radius: 8px;
@@ -203,8 +206,6 @@
             text-decoration: none;
             color: inherit;
             display: block;
-            transform-style: preserve-3d;
-            perspective: 1000px;
             position: relative;
         }
 
@@ -235,15 +236,17 @@
         }
 
         .project-card:hover {
-            border-color: #f78166;
-            box-shadow: 0 20px 40px rgba(247, 129, 102, 0.3);
+            border-color: var(--glow-border);
+            box-shadow: 0 20px 40px var(--glow-shadow-strong);
+            animation: glowPulse 0.9s ease forwards;
             text-decoration: none;
             color: inherit;
         }
 
-        .helm-card:hover {
-            border-color: #7c3aed;
-            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.35);
+        .helm-card {
+            --glow-border: #7c3aed;
+            --glow-shadow-strong: rgba(124, 58, 237, 0.35);
+            --glow-shadow-soft: rgba(124, 58, 237, 0.25);
         }
 
         .project-name {
@@ -278,6 +281,18 @@
             25% { transform: scale(1.2) translateY(-10px); }
             50% { transform: scale(1.2) translateY(-5px); }
             75% { transform: scale(1.2) translateY(-7px); }
+        }
+
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            }
+            60% {
+                box-shadow: 0 22px 42px var(--glow-shadow-strong), 0 0 18px var(--glow-shadow-soft);
+            }
+            100% {
+                box-shadow: 0 16px 32px var(--glow-shadow-soft);
+            }
         }
 
         @media (max-width: 768px) {
@@ -431,31 +446,5 @@
         </div>
     </div>
 
-    <script>
-        const cards = document.querySelectorAll('.project-card');
-        
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = (y - centerY) / 10;
-                const rotateY = (centerX - x) / 10;
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-                
-                card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
-                card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-            });
-        });
-    </script>
 </body>
 </html>
