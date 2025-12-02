@@ -42,6 +42,53 @@
             box-sizing: border-box;
         }
 
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f78166;
+            color: #000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0 0 8px 8px;
+            font-weight: 600;
+            text-decoration: none;
+            z-index: 1000;
+            transition: top 0.2s ease;
+        }
+
+        .skip-link:focus {
+            top: 0;
+            outline: none;
+        }
+
+        /* External link indicator (screen reader only by default) */
+        .external-link-indicator {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Visual external link icon for project cards */
+        .external-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 0.25rem;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .project-card:hover .external-icon,
+        .project-card:focus-visible .external-icon {
+            opacity: 1;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
             background: #000000;
@@ -130,7 +177,7 @@
 
         .subtitle {
             font-size: 1.1rem;
-            color: #cccccc;
+            color: #d4d4d4;
             margin-bottom: 2.5rem;
             font-weight: 400;
             animation: subtitleShimmer 4s ease-in-out infinite;
@@ -165,6 +212,7 @@
             font-weight: 500;
             transition: all 0.2s ease;
             min-width: 120px;
+            min-height: 44px;
             justify-content: center;
         }
 
@@ -188,6 +236,36 @@
         .gitlab-link:hover {
             border-color: #FC6D26;
             box-shadow: 0 4px 12px rgba(252, 109, 38, 0.4);
+        }
+
+        /* Focus indicators for keyboard navigation */
+        .social-link:focus-visible {
+            outline: 2px solid #f78166;
+            outline-offset: 2px;
+            background: #333333;
+        }
+
+        .github-link:focus-visible {
+            outline-color: #7c3aed;
+        }
+
+        .linkedin-link:focus-visible {
+            outline-color: #0077b5;
+        }
+
+        .gitlab-link:focus-visible {
+            outline-color: #FC6D26;
+        }
+
+        .project-card:focus-visible {
+            outline: 2px solid var(--glow-border);
+            outline-offset: 2px;
+        }
+
+        .profile-link:focus-visible {
+            outline: 2px solid #f78166;
+            outline-offset: 4px;
+            border-radius: 50%;
         }
 
         .projects-section {
@@ -302,7 +380,7 @@
         }
 
         .project-description {
-            color: #cccccc;
+            color: #d4d4d4;
             font-size: 0.95rem;
             line-height: 1.5;
         }
@@ -407,30 +485,54 @@
             from, to { border-color: transparent }
             50% { border-color: #f78166 }
         }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            h1 {
+                width: 11ch;
+                border-right: none;
+            }
+
+            .profile-image {
+                animation: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="https://github.com/0xjuanma" 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           class="profile-link">
-            <img src="https://avatars.githubusercontent.com/u/19920356?v=4&s=300" 
-                 alt="Juanma Roca" 
-                 class="profile-image">
-        </a>
-        
-        <div class="name-container">
-            <h1>Juanma Roca</h1>
-        </div>
-        <p class="subtitle">Software Engineer</p>
-        
-        <div class="social-links">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <main class="container" id="main-content">
+        <header>
             <a href="https://github.com/0xjuanma" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="social-link github-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+               class="profile-link">
+                <img src="https://avatars.githubusercontent.com/u/19920356?v=4&s=300" 
+                     alt="Profile photo of Juanma Roca" 
+                     class="profile-image">
+            </a>
+            
+            <div class="name-container">
+                <h1>Juanma Roca</h1>
+            </div>
+            <p class="subtitle">Software Engineer</p>
+        </header>
+        
+        <nav class="social-links" aria-label="Social media links">
+            <a href="https://github.com/0xjuanma" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="social-link github-link"
+               aria-label="Visit my GitHub profile (opens in new tab)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
                 GitHub
@@ -439,8 +541,9 @@
             <a href="https://www.linkedin.com/in/rocajuanma/" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="social-link linkedin-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+               class="social-link linkedin-link"
+               aria-label="Visit my LinkedIn profile (opens in new tab)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
                 LinkedIn
@@ -449,7 +552,8 @@
             <a href="https://gitlab.com/0xjuanma" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="social-link gitlab-link">
+               class="social-link gitlab-link"
+               aria-label="Visit my GitLab profile (opens in new tab)">
                 <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="currentColor" d="M4.5 0L6.9 9H1.8z"/>
                     <path fill="currentColor" d="M19.5 0L17.1 9h5.1z"/>
@@ -459,17 +563,21 @@
                 </svg>
                 GitLab
             </a>
-        </div>
+        </nav>
         
-        <div class="projects-section">
-            <h2 class="projects-title">Projects</h2>
+        <section class="projects-section" aria-labelledby="projects-heading">
+            <h2 class="projects-title" id="projects-heading">Projects</h2>
             <a href="https://github.com/0xjuanma/anvil" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="project-card">
+               class="project-card"
+               aria-label="Anvil project on GitHub (opens in new tab)">
                 <div class="project-name">
                     <span class="project-emoji">🔨</span>
                     Anvil
+                    <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                    </svg>
                 </div>
                 <p class="project-description">
                     CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
@@ -479,17 +587,21 @@
             <a href="https://github.com/0xjuanma/helm" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="project-card helm-card">
+               class="project-card helm-card"
+               aria-label="Helm project on GitHub (opens in new tab)">
                 <div class="project-name">
                     <span class="project-emoji">⏳</span>
                     Helm
+                    <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                    </svg>
                 </div>
                 <p class="project-description">
                     Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
                 </p>
             </a>
-        </div>
-    </div>
+        </section>
+    </main>
 
 </body>
 </html>
