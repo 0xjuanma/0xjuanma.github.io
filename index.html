@@ -208,6 +208,10 @@
             position: relative;
         }
 
+        .project-card + .project-card {
+            margin-top: 1.5rem;
+        }
+
         .project-card::before {
             content: '';
             position: absolute;
@@ -235,6 +239,11 @@
             box-shadow: 0 20px 40px rgba(247, 129, 102, 0.3);
             text-decoration: none;
             color: inherit;
+        }
+
+        .helm-card:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.35);
         }
 
         .project-name {
@@ -404,6 +413,19 @@
                 </div>
                 <p class="project-description">
                     CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
+                </p>
+            </a>
+
+            <a href="https://github.com/0xjuanma/helm" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="project-card helm-card">
+                <div class="project-name">
+                    <span class="project-emoji">⏳</span>
+                    Helm
+                </div>
+                <p class="project-description">
+                    Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
                 </p>
             </a>
         </div>
