@@ -282,9 +282,9 @@
         }
 
         .project-card {
-            --glow-border: #f78166;
-            --glow-shadow-strong: rgba(247, 129, 102, 0.35);
-            --glow-shadow-soft: rgba(247, 129, 102, 0.2);
+            --glow-border: #F97316;
+            --glow-shadow-strong: rgba(249, 115, 22, 0.45);
+            --glow-shadow-soft: rgba(249, 115, 22, 0.3);
             background: #111111;
             border: 1px solid #333333;
             border-radius: 8px;
@@ -304,28 +304,6 @@
 
         .project-card + .project-card {
             margin-top: 1.5rem;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(
-                circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(247, 129, 102, 0.15) 0%,
-                transparent 50%
-            );
-            border-radius: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .project-card:hover::before {
-            opacity: 1;
         }
 
         .project-card::after {
@@ -356,9 +334,9 @@
         }
 
         .helm-card {
-            --glow-border: #7c3aed;
-            --glow-shadow-strong: rgba(124, 58, 237, 0.35);
-            --glow-shadow-soft: rgba(124, 58, 237, 0.25);
+            --glow-border: #0EA5E9;
+            --glow-shadow-strong: rgba(14, 165, 233, 0.45);
+            --glow-shadow-soft: rgba(14, 165, 233, 0.3);
         }
 
         .projects-section .project-card:nth-of-type(1) {
@@ -393,6 +371,57 @@
 
         .project-card:hover .project-emoji {
             transform: translateY(-2px);
+        }
+
+        .project-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .project-logo-container {
+            flex: 0 0 30%;
+            max-width: 30%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-logo {
+            width: 100%;
+            max-width: 120px;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover .project-logo {
+            transform: scale(1.05);
+        }
+
+        .project-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        @media (max-width: 768px) {
+            .project-card-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .project-logo-container {
+                flex: none;
+                max-width: 100%;
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .project-logo {
+                max-width: 80px;
+            }
         }
 
         @keyframes glowPulse {
@@ -572,16 +601,26 @@
                rel="noopener noreferrer" 
                class="project-card"
                aria-label="Anvil project on GitHub (opens in new tab)">
-                <div class="project-name">
-                    <span class="project-emoji">🔨</span>
-                    Anvil
-                    <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                    </svg>
+                <div class="project-card-inner">
+                    <div class="project-logo-container">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/anvil/master/assets/anvil-2.0.png" 
+                             alt="Anvil logo" 
+                             class="project-logo"
+                             loading="lazy">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-name">
+                            <span class="project-emoji">🔨</span>
+                            Anvil
+                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </div>
+                        <p class="project-description">
+                            CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
+                        </p>
+                    </div>
                 </div>
-                <p class="project-description">
-                    CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
-                </p>
             </a>
 
             <a href="https://github.com/0xjuanma/helm" 
@@ -589,16 +628,26 @@
                rel="noopener noreferrer" 
                class="project-card helm-card"
                aria-label="Helm project on GitHub (opens in new tab)">
-                <div class="project-name">
-                    <span class="project-emoji">⏳</span>
-                    Helm
-                    <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                    </svg>
+                <div class="project-card-inner">
+                    <div class="project-logo-container">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/helm/main/assets/helm.png" 
+                             alt="Helm logo" 
+                             class="project-logo"
+                             loading="lazy">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-name">
+                            <span class="project-emoji">⏳</span>
+                            Helm
+                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </div>
+                        <p class="project-description">
+                            Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
+                        </p>
+                    </div>
                 </div>
-                <p class="project-description">
-                    Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
-                </p>
             </a>
         </section>
     </main>
