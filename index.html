@@ -339,12 +339,30 @@
             --glow-shadow-soft: rgba(14, 165, 233, 0.3);
         }
 
+        .golazo-card {
+            --glow-border: #22C55E;
+            --glow-shadow-strong: rgba(34, 197, 94, 0.45);
+            --glow-shadow-soft: rgba(34, 197, 94, 0.3);
+        }
+
+        .golazo-card .project-logo {
+            transform: scale(1.2);
+        }
+
+        .golazo-card:hover .project-logo {
+            transform: scale(1.26);
+        }
+
         .projects-section .project-card:nth-of-type(1) {
             animation-delay: 0.2s;
         }
 
         .projects-section .project-card:nth-of-type(2) {
             animation-delay: 0.35s;
+        }
+
+        .projects-section .project-card:nth-of-type(3) {
+            animation-delay: 0.5s;
         }
 
         .project-name {
@@ -390,6 +408,7 @@
         .project-logo {
             width: 100%;
             max-width: 120px;
+            max-height: 80px;
             height: auto;
             object-fit: contain;
             border-radius: 8px;
@@ -645,6 +664,33 @@
                         </div>
                         <p class="project-description">
                             Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
+                        </p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="https://github.com/0xjuanma/golazo" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="project-card golazo-card"
+               aria-label="Golazo project on GitHub (opens in new tab)">
+                <div class="project-card-inner">
+                    <div class="project-logo-container">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/golazo/main/assets/golazo-logo.png" 
+                             alt="Golazo logo" 
+                             class="project-logo"
+                             loading="lazy">
+                    </div>
+                    <div class="project-content">
+                        <div class="project-name">
+                            <span class="project-emoji">⚽</span>
+                            Golazo
+                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </div>
+                        <p class="project-description">
+                            Terminal app for keeping up with live football. Check scores, match events, and stats from major leagues without leaving your terminal.
                         </p>
                     </div>
                 </div>
