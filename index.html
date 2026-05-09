@@ -323,6 +323,12 @@
 
         /* expanded body */
         .project-body {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-body-inner {
             display: grid;
             grid-template-columns: auto 1fr;
             grid-template-rows: auto auto;
@@ -333,6 +339,7 @@
 
         .project-logo {
             grid-row: 1 / 3;
+            align-self: start;
             width: 64px;
             height: 64px;
             object-fit: contain;
@@ -448,7 +455,7 @@
                 gap: var(--space-lg);
             }
 
-            .project-body {
+            .project-body-inner {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto auto auto;
                 padding-left: calc(var(--space-md) + 4px);
@@ -551,23 +558,25 @@
                     </svg>
                 </summary>
                 <div class="project-body">
-                    <img src="https://raw.githubusercontent.com/0xjuanma/anvil/master/assets/anvil-2.0.png"
-                         alt="Anvil logo"
-                         class="project-logo"
-                         loading="lazy">
-                    <p class="project-description">
-                        CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
-                    </p>
-                    <a href="https://github.com/0xjuanma/anvil"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="project-link"
-                       aria-label="View Anvil on GitHub (opens in new tab)">
-                        View on GitHub
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                        </svg>
-                    </a>
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/anvil/master/assets/anvil-2.0.png"
+                             alt="Anvil logo"
+                             class="project-logo"
+                             loading="lazy">
+                        <p class="project-description">
+                            CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
+                        </p>
+                        <a href="https://github.com/0xjuanma/anvil"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Anvil on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </details>
 
@@ -581,23 +590,25 @@
                     </svg>
                 </summary>
                 <div class="project-body">
-                    <img src="https://raw.githubusercontent.com/0xjuanma/helm/main/assets/helm.png"
-                         alt="Helm logo"
-                         class="project-logo"
-                         loading="lazy">
-                    <p class="project-description">
-                        Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
-                    </p>
-                    <a href="https://github.com/0xjuanma/helm"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="project-link"
-                       aria-label="View Helm on GitHub (opens in new tab)">
-                        View on GitHub
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                        </svg>
-                    </a>
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/helm/main/assets/helm.png"
+                             alt="Helm logo"
+                             class="project-logo"
+                             loading="lazy">
+                        <p class="project-description">
+                            Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
+                        </p>
+                        <a href="https://github.com/0xjuanma/helm"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Helm on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </details>
 
@@ -611,26 +622,60 @@
                     </svg>
                 </summary>
                 <div class="project-body">
-                    <img src="https://raw.githubusercontent.com/0xjuanma/golazo/main/assets/golazo-logo.png"
-                         alt="Golazo logo"
-                         class="project-logo"
-                         loading="lazy">
-                    <p class="project-description">
-                        Terminal app for keeping up with live football. Check scores, match events, and stats from major leagues without leaving your terminal.
-                    </p>
-                    <a href="https://github.com/0xjuanma/golazo"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="project-link"
-                       aria-label="View Golazo on GitHub (opens in new tab)">
-                        View on GitHub
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                        </svg>
-                    </a>
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/golazo/main/assets/golazo-logo.png"
+                             alt="Golazo logo"
+                             class="project-logo"
+                             loading="lazy">
+                        <p class="project-description">
+                            Terminal app for keeping up with live football. Check scores, match events, and stats from major leagues without leaving your terminal.
+                        </p>
+                        <a href="https://github.com/0xjuanma/golazo"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Golazo on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </details>
         </section>
     </main>
+
+    <script>
+        document.querySelectorAll('.project-row').forEach(details => {
+            const body = details.querySelector('.project-body');
+            const summary = details.querySelector('.project-summary');
+
+            summary.addEventListener('click', e => {
+                e.preventDefault();
+
+                if (details.open) {
+                    body.style.maxHeight = body.scrollHeight + 'px';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => { body.style.maxHeight = '0'; });
+                    });
+                    body.addEventListener('transitionend', () => {
+                        details.removeAttribute('open');
+                        body.style.maxHeight = '';
+                    }, { once: true });
+                } else {
+                    details.setAttribute('open', '');
+                    const target = body.scrollHeight;
+                    body.style.maxHeight = '0';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => { body.style.maxHeight = target + 'px'; });
+                    });
+                    body.addEventListener('transitionend', () => {
+                        body.style.maxHeight = '';
+                    }, { once: true });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
