@@ -362,6 +362,47 @@
             opacity: 0.75;
         }
 
+        /* ── Entrance animations ────────────────────────────────────────── */
+
+        /* profile image: scale up on load */
+        @keyframes profileIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes profilePulse {
+            0%, 100% { box-shadow: 0 0 0 0 transparent; }
+            50%       { box-shadow: 0 0 0 8px rgba(247, 129, 102, 0.07); }
+        }
+
+        .profile-image {
+            animation:
+                profileIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+                profilePulse 4s ease-in-out 1.5s infinite;
+        }
+
+        /* social links stagger in */
+        .social-links {
+            opacity: 0;
+            animation: fadeUp 0.5s ease 1s forwards;
+        }
+
+        /* projects section stagger in */
+        .projects-section {
+            opacity: 0;
+            animation: fadeUp 0.5s ease 1.15s forwards;
+        }
+
+        /* project row: nudge right on open/hover */
+        .project-summary {
+            transition: background var(--transition), padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-row:hover > .project-summary,
+        .project-row[open] > .project-summary {
+            padding-left: calc(var(--space-md) + 5px);
+        }
+
         /* ── Reduced motion ─────────────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -370,8 +411,13 @@
                 transition-duration: 0.01ms !important;
             }
 
-            h1 {
-                clip-path: none;
+            h1 { clip-path: none; }
+
+            .profile-image,
+            .social-links,
+            .projects-section {
+                opacity: 1;
+                animation: none;
             }
         }
     </style>
