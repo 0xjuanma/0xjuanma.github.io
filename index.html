@@ -403,6 +403,64 @@
             padding-left: calc(var(--space-md) + 5px);
         }
 
+        /* ── Focus-visible states ───────────────────────────────────────── */
+
+        .profile-link:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 4px;
+            border-radius: 50%;
+        }
+
+        .social-link:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .github-link:focus-visible   { color: #b09eff; }
+        .linkedin-link:focus-visible { color: #5aaddb; }
+        .gitlab-link:focus-visible   { color: #fc9a5a; }
+
+        .project-summary:focus-visible {
+            outline: 2px solid var(--project-accent);
+            outline-offset: -2px;
+        }
+
+        .project-link:focus-visible {
+            outline: 2px solid var(--project-accent);
+            outline-offset: 3px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ── Mobile responsive ──────────────────────────────────────────── */
+        @media (max-width: 600px) {
+            body {
+                padding: var(--space-lg) var(--space-md);
+                justify-content: flex-start;
+                padding-top: var(--space-2xl);
+            }
+
+            h1 {
+                font-size: 2.25rem;
+            }
+
+            .social-links {
+                gap: var(--space-lg);
+            }
+
+            .project-body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                padding-left: calc(var(--space-md) + 4px);
+            }
+
+            .project-logo {
+                grid-row: auto;
+                width: 48px;
+                height: 48px;
+            }
+        }
+
         /* ── Reduced motion ─────────────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
