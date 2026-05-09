@@ -34,6 +34,162 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Design Tokens ─────────────────────────────────────────────── */
+        :root {
+            --color-bg:          #000000;
+            --color-surface:     #0a0a0a;
+            --color-border:      #222222;
+            --color-border-mid:  #333333;
+            --color-text:        #ffffff;
+            --color-text-muted:  #888888;
+            --color-text-sub:    #cccccc;
+            --color-accent:      #f78166;
+
+            --font-serif:  'Playfair Display', Georgia, serif;
+            --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+
+            --radius-sm:  4px;
+            --radius-md:  8px;
+
+            --space-xs:   0.25rem;
+            --space-sm:   0.5rem;
+            --space-md:   1rem;
+            --space-lg:   1.5rem;
+            --space-xl:   2rem;
+            --space-2xl:  3rem;
+
+            --max-width:  560px;
+            --transition: 0.2s ease;
+        }
+
+        /* ── Reset ─────────────────────────────────────────────────────── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ── Skip link ─────────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-accent);
+            color: #000;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            z-index: 1000;
+            transition: top var(--transition);
+        }
+
+        .skip-link:focus {
+            top: 0;
+            outline: none;
+        }
+
+        /* ── Layout ─────────────────────────────────────────────────────── */
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl) var(--space-md);
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+        }
+
+        /* ── Hero / Header ──────────────────────────────────────────────── */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .profile-link {
+            display: inline-block;
+            margin-bottom: var(--space-lg);
+            border-radius: 50%;
+            text-decoration: none;
+        }
+
+        .profile-image {
+            display: block;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 1px solid var(--color-border-mid);
+            object-fit: cover;
+            transition: border-color var(--transition), transform 0.3s ease;
+        }
+
+        .profile-link:hover .profile-image {
+            border-color: var(--color-accent);
+            transform: scale(1.04);
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--color-text);
+            line-height: 1.1;
+            margin-bottom: var(--space-sm);
+
+            /* wipe-in reveal */
+            clip-path: inset(0 100% 0 0);
+            animation: wipeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        }
+
+        @keyframes wipeIn {
+            to { clip-path: inset(0 0% 0 0); }
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            opacity: 0;
+            animation: fadeUp 0.6s ease 0.85s forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Reduced motion ─────────────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            h1 {
+                clip-path: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
