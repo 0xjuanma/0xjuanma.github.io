@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Primary Meta Tags -->
     <title>Juanma Roca - Software Engineer</title>
     <meta name="title" content="Juanma Roca - Software Engineer">
@@ -36,25 +36,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
     <style>
-        * {
+        /* ── Design Tokens ─────────────────────────────────────────────── */
+        :root {
+            --color-bg:          #000000;
+            --color-surface:     #0a0a0a;
+            --color-border:      #222222;
+            --color-border-mid:  #333333;
+            --color-text:        #ffffff;
+            --color-text-muted:  #888888;
+            --color-text-sub:    #cccccc;
+            --color-accent:      #f78166;
+
+            --font-serif:  'Playfair Display', Georgia, serif;
+            --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+
+            --radius-sm:  4px;
+            --radius-md:  8px;
+
+            --space-xs:   0.25rem;
+            --space-sm:   0.5rem;
+            --space-md:   1rem;
+            --space-lg:   1.5rem;
+            --space-xl:   2rem;
+            --space-2xl:  3rem;
+
+            --max-width:  560px;
+            --transition: 0.2s ease;
+        }
+
+        /* ── Grain overlay ─────────────────────────────────────────────── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px;
+        }
+
+        /* ── Reset ─────────────────────────────────────────────────────── */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* ── Skip link ─────────────────────────────────────────────────── */
         .skip-link {
             position: absolute;
             top: -100px;
             left: 50%;
             transform: translateX(-50%);
-            background: #f78166;
+            background: var(--color-accent);
             color: #000;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0 0 8px 8px;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            font-family: var(--font-sans);
             font-weight: 600;
+            font-size: 0.875rem;
             text-decoration: none;
             z-index: 1000;
-            transition: top 0.2s ease;
+            transition: top var(--transition);
         }
 
         .skip-link:focus {
@@ -62,494 +107,394 @@
             outline: none;
         }
 
-        /* External link indicator (screen reader only by default) */
-        .external-link-indicator {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Visual external link icon for project cards */
-        .external-icon {
-            width: 14px;
-            height: 14px;
-            margin-left: 0.25rem;
-            opacity: 0.6;
-            transition: opacity 0.2s ease;
-        }
-
-        .project-card:hover .external-icon,
-        .project-card:focus-visible .external-icon {
-            opacity: 1;
-        }
-
+        /* ── Layout ─────────────────────────────────────────────────────── */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-            background: #000000;
-            color: #ffffff;
+            font-family: var(--font-sans);
+            background: var(--color-bg);
+            color: var(--color-text);
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: var(--space-xl) var(--space-md);
         }
 
         .container {
-            text-align: center;
-            max-width: 600px;
             width: 100%;
+            max-width: var(--max-width);
         }
 
-        .name-container {
+        /* ── Hero / Header ──────────────────────────────────────────────── */
+        header {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            margin-bottom: var(--space-2xl);
         }
 
         .profile-link {
             display: inline-block;
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
+            margin-bottom: var(--space-lg);
+            border-radius: 50%;
+            text-decoration: none;
         }
 
         .profile-image {
-            width: 250px;
-            height: 250px;
+            display: block;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            border: 4px solid #333333;
-            transition: all 0.3s ease;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
-            animation: pulseGlow 3s ease-in-out infinite;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% {
-                box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6),
-                            0 0 20px rgba(247, 129, 102, 0.2);
-            }
-            50% {
-                box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6),
-                            0 0 40px rgba(247, 129, 102, 0.5),
-                            0 0 60px rgba(247, 129, 102, 0.3);
-            }
+            border: 1px solid var(--color-border-mid);
+            object-fit: cover;
+            transition: border-color var(--transition), transform 0.3s ease;
         }
 
         .profile-link:hover .profile-image {
-            border-color: #f78166;
-            transform: scale(1.05);
-            animation: none;
-            box-shadow: 0 16px 64px rgba(247, 129, 102, 0.6);
+            border-color: var(--color-accent);
+            transform: scale(1.04);
         }
 
         h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
+            font-family: var(--font-serif);
+            font-size: 2.75rem;
             font-weight: 700;
-            margin: 0;
-            color: #ffffff;
-            overflow: hidden;
-            border-right: 3px solid #f78166;
-            white-space: nowrap;
-            width: 0;
-            animation: typing 3s steps(11, end) forwards, blink-caret 0.75s step-end infinite, subtleGlow 4s ease-in-out 3s infinite;
-            display: inline-block;
-            letter-spacing: 0.02em;
+            letter-spacing: -0.01em;
+            color: var(--color-text);
+            line-height: 1.1;
+            margin-bottom: var(--space-sm);
+
+            /* wipe-in reveal */
+            clip-path: inset(0 100% 0 0);
+            animation: wipeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
         }
 
-        @keyframes subtleGlow {
-            0%, 100% {
-                text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-            }
-            50% {
-                text-shadow: 0 0 15px rgba(247, 129, 102, 0.3),
-                             0 0 25px rgba(247, 129, 102, 0.2);
-            }
+        @keyframes wipeIn {
+            to { clip-path: inset(0 0% 0 0); }
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            color: #d4d4d4;
-            margin-bottom: 2.5rem;
+            font-size: 0.875rem;
             font-weight: 400;
-            animation: subtitleShimmer 4s ease-in-out infinite;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            opacity: 0;
+            animation: fadeUp 0.6s ease 0.85s forwards;
         }
 
-        @keyframes subtitleShimmer {
-            0%, 100% {
-                text-shadow: 0 0 0 transparent;
-            }
-            50% {
-                text-shadow: 0 0 8px rgba(247, 129, 102, 0.15), 0 0 16px rgba(247, 129, 102, 0.1);
-            }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
+        /* ── Social Links ───────────────────────────────────────────────── */
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
         }
 
         .social-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 12px 20px;
-            background: #1a1a1a;
-            border: 1px solid #444444;
-            border-radius: 8px;
+            gap: var(--space-xs);
             text-decoration: none;
-            color: #ffffff;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: all 0.2s ease;
-            min-width: 120px;
+            letter-spacing: 0.04em;
+            position: relative;
+            padding-bottom: 2px;
+            transition: color var(--transition);
             min-height: 44px;
-            justify-content: center;
+            align-items: center;
+        }
+
+        /* animated underline via pseudo-element */
+        .social-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .social-link:hover {
-            background: #333333;
-            border-color: #f78166;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(247, 129, 102, 0.3);
+            color: var(--color-text);
         }
 
-        .github-link:hover {
-            border-color: #7c3aed;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        .social-link:hover::after {
+            transform: scaleX(1);
         }
 
-        .linkedin-link:hover {
-            border-color: #0077b5;
-            box-shadow: 0 4px 12px rgba(0, 119, 181, 0.4);
+        .github-link::after   { background: #7c3aed; }
+        .linkedin-link::after { background: #0077b5; }
+        .gitlab-link::after   { background: #FC6D26; }
+
+        .github-link:hover   { color: #b09eff; }
+        .linkedin-link:hover { color: #5aaddb; }
+        .gitlab-link:hover   { color: #fc9a5a; }
+
+        /* ── Projects Section ───────────────────────────────────────────── */
+        .projects-section {
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--space-xl);
         }
 
-        .gitlab-link:hover {
-            border-color: #FC6D26;
-            box-shadow: 0 4px 12px rgba(252, 109, 38, 0.4);
+        .projects-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-lg);
         }
 
-        /* Focus indicators for keyboard navigation */
-        .social-link:focus-visible {
-            outline: 2px solid #f78166;
-            outline-offset: 2px;
-            background: #333333;
+        /* accordion rows */
+        .project-row {
+            border-left: 2px solid transparent;
+            border-bottom: 1px solid var(--color-border);
+            transition: border-left-color var(--transition);
         }
 
-        .github-link:focus-visible {
-            outline-color: #7c3aed;
+        .project-row:first-of-type {
+            border-top: 1px solid var(--color-border);
         }
 
-        .linkedin-link:focus-visible {
-            outline-color: #0077b5;
+        .anvil-row  { --project-accent: #F97316; }
+        .helm-row   { --project-accent: #0EA5E9; }
+        .golazo-row { --project-accent: #22C55E; }
+
+        .project-row[open],
+        .project-row:hover {
+            border-left-color: var(--project-accent);
         }
 
-        .gitlab-link:focus-visible {
-            outline-color: #FC6D26;
+        /* suppress browser default triangle marker */
+        .project-summary {
+            list-style: none;
+        }
+        .project-summary::-webkit-details-marker {
+            display: none;
         }
 
-        .project-card:focus-visible {
-            outline: 2px solid var(--glow-border);
-            outline-offset: 2px;
+        .project-summary {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-md);
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--transition);
         }
+
+        .project-summary:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .project-index {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: var(--color-text-muted);
+            font-variant-numeric: tabular-nums;
+            min-width: 1.5rem;
+        }
+
+        .project-emoji {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .project-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text);
+            flex: 1;
+        }
+
+        .project-chevron {
+            width: 16px;
+            height: 16px;
+            color: var(--color-text-muted);
+            flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color var(--transition);
+        }
+
+        .project-row[open] .project-chevron {
+            transform: rotate(180deg);
+            color: var(--project-accent);
+        }
+
+        /* expanded body */
+        .project-body {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-body-inner {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto;
+            gap: var(--space-md) var(--space-lg);
+            padding: 0 var(--space-md) var(--space-lg) calc(var(--space-md) + 1.5rem + var(--space-sm) + 1.1rem + var(--space-sm));
+            align-items: start;
+        }
+
+        .project-logo {
+            grid-row: 1 / 3;
+            align-self: start;
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            border-radius: var(--radius-sm);
+            opacity: 0.9;
+        }
+
+        .project-description {
+            font-size: 0.875rem;
+            color: var(--color-text-sub);
+            line-height: 1.6;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--project-accent);
+            text-decoration: none;
+            letter-spacing: 0.02em;
+            transition: opacity var(--transition);
+        }
+
+        .project-link:hover {
+            opacity: 0.75;
+        }
+
+        /* ── Entrance animations ────────────────────────────────────────── */
+
+        /* profile image: scale up on load */
+        @keyframes profileIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes profilePulse {
+            0%, 100% { box-shadow: 0 0 0 0 transparent; }
+            50%       { box-shadow: 0 0 0 8px rgba(247, 129, 102, 0.07); }
+        }
+
+        .profile-image {
+            animation:
+                profileIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+                profilePulse 4s ease-in-out 1.5s infinite;
+        }
+
+        /* social links stagger in */
+        .social-links {
+            opacity: 0;
+            animation: fadeUp 0.5s ease 1s forwards;
+        }
+
+        /* projects section stagger in */
+        .projects-section {
+            opacity: 0;
+            animation: fadeUp 0.5s ease 1.15s forwards;
+        }
+
+        /* project row: nudge right on open/hover */
+        .project-summary {
+            transition: background var(--transition), padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-row:hover > .project-summary,
+        .project-row[open] > .project-summary {
+            padding-left: calc(var(--space-md) + 5px);
+        }
+
+        /* ── Focus-visible states ───────────────────────────────────────── */
 
         .profile-link:focus-visible {
-            outline: 2px solid #f78166;
+            outline: 2px solid var(--color-accent);
             outline-offset: 4px;
             border-radius: 50%;
         }
 
-        .projects-section {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #333333;
+        .social-link:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 4px;
+            border-radius: var(--radius-sm);
         }
 
-        .projects-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #ffffff;
+        .github-link:focus-visible   { color: #b09eff; }
+        .linkedin-link:focus-visible { color: #5aaddb; }
+        .gitlab-link:focus-visible   { color: #fc9a5a; }
+
+        .project-summary:focus-visible {
+            outline: 2px solid var(--project-accent);
+            outline-offset: -2px;
         }
 
-        .project-card {
-            --glow-border: #F97316;
-            --glow-shadow-strong: rgba(249, 115, 22, 0.45);
-            --glow-shadow-soft: rgba(249, 115, 22, 0.3);
-            background: #111111;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: left;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            position: relative;
-            z-index: 0;
-            opacity: 0;
-            transform: translateY(18px);
-            animation: projectFade 0.6s ease forwards;
-            animation-fill-mode: forwards;
+        .project-link:focus-visible {
+            outline: 2px solid var(--project-accent);
+            outline-offset: 3px;
+            border-radius: var(--radius-sm);
         }
 
-        .project-card + .project-card {
-            margin-top: 1.5rem;
-        }
-
-        .project-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .project-card:hover {
-            border-color: var(--glow-border);
-            box-shadow: 0 20px 40px var(--glow-shadow-strong);
-            text-decoration: none;
-            color: inherit;
-            transform: translateY(-4px);
-        }
-
-        .project-card:hover::after {
-            border-color: var(--glow-border);
-            opacity: 1;
-            animation: glowPulse 0.9s ease forwards;
-        }
-
-        .helm-card {
-            --glow-border: #0EA5E9;
-            --glow-shadow-strong: rgba(14, 165, 233, 0.45);
-            --glow-shadow-soft: rgba(14, 165, 233, 0.3);
-        }
-
-        .golazo-card {
-            --glow-border: #22C55E;
-            --glow-shadow-strong: rgba(34, 197, 94, 0.45);
-            --glow-shadow-soft: rgba(34, 197, 94, 0.3);
-        }
-
-        .golazo-card .project-logo {
-            transform: scale(1.2);
-        }
-
-        .golazo-card:hover .project-logo {
-            transform: scale(1.26);
-        }
-
-        .projects-section .project-card:nth-of-type(1) {
-            animation-delay: 0.2s;
-        }
-
-        .projects-section .project-card:nth-of-type(2) {
-            animation-delay: 0.35s;
-        }
-
-        .projects-section .project-card:nth-of-type(3) {
-            animation-delay: 0.5s;
-        }
-
-        .project-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .project-description {
-            color: #d4d4d4;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .project-emoji {
-            font-size: 1.4rem;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-
-        .project-card:hover .project-emoji {
-            transform: translateY(-2px);
-        }
-
-        .project-card-inner {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-        }
-
-        .project-logo-container {
-            flex: 0 0 30%;
-            max-width: 30%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .project-logo {
-            width: 100%;
-            max-width: 120px;
-            max-height: 80px;
-            height: auto;
-            object-fit: contain;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
-        }
-
-        .project-card:hover .project-logo {
-            transform: scale(1.05);
-        }
-
-        .project-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        @media (max-width: 768px) {
-            .project-card-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .project-logo-container {
-                flex: none;
-                max-width: 100%;
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .project-logo {
-                max-width: 80px;
-            }
-        }
-
-        @keyframes glowPulse {
-            0% {
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-            }
-            60% {
-                box-shadow: 0 22px 42px var(--glow-shadow-strong), 0 0 18px var(--glow-shadow-soft);
-            }
-            100% {
-                box-shadow: 0 16px 32px var(--glow-shadow-soft);
-            }
-        }
-
-        @keyframes projectFade {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
+        /* ── Mobile responsive ──────────────────────────────────────────── */
+        @media (max-width: 600px) {
             body {
-                padding: 1rem;
+                padding: var(--space-lg) var(--space-md);
+                justify-content: flex-start;
+                padding-top: var(--space-2xl);
             }
 
             h1 {
-                font-size: 2rem;
-                animation: typing 2.5s steps(11, end) forwards, blink-caret 0.75s step-end infinite;
-            }
-            
-            @keyframes typing {
-                from { width: 0 }
-                to { width: 11ch }
-            }
-
-            .subtitle {
-                font-size: 1rem;
+                font-size: 2.25rem;
             }
 
             .social-links {
-                flex-direction: column;
-                align-items: center;
-                gap: 1rem;
+                gap: var(--space-lg);
             }
 
-            .social-link {
-                width: 200px;
+            .project-body-inner {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                padding-left: calc(var(--space-md) + 4px);
             }
 
-            .profile-image {
-                width: 200px;
-                height: 200px;
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .project-logo {
+                grid-row: auto;
+                width: 48px;
+                height: 48px;
             }
         }
 
-        .container > * {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .social-links {
-            animation-delay: 0.2s;
-        }
-
-        .projects-section {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 11ch }
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #f78166 }
-        }
-
-        /* Reduced motion support */
+        /* ── Reduced motion ─────────────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
+            *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
 
-            h1 {
-                width: 11ch;
-                border-right: none;
-            }
+            h1 { clip-path: none; }
 
-            .profile-image {
+            .profile-image,
+            .social-links,
+            .projects-section {
+                opacity: 1;
                 animation: none;
             }
         }
@@ -557,52 +502,52 @@
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <main class="container" id="main-content">
         <header>
-            <a href="https://github.com/0xjuanma" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="profile-link">
-                <img src="https://avatars.githubusercontent.com/u/19920356?v=4&s=300" 
-                     alt="Profile photo of Juanma Roca" 
+            <a href="https://github.com/0xjuanma"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="profile-link"
+               aria-label="Visit my GitHub profile (opens in new tab)">
+                <img src="https://avatars.githubusercontent.com/u/19920356?v=4&s=300"
+                     alt="Profile photo of Juanma Roca"
                      class="profile-image">
             </a>
-            
-            <div class="name-container">
-                <h1>Juanma Roca</h1>
-            </div>
+
+            <h1>Juanma Roca</h1>
             <p class="subtitle">Software Engineer</p>
         </header>
-        
+
         <nav class="social-links" aria-label="Social media links">
-            <a href="https://github.com/0xjuanma" 
-               target="_blank" 
-               rel="noopener noreferrer" 
+            <a href="https://github.com/0xjuanma"
+               target="_blank"
+               rel="noopener noreferrer"
                class="social-link github-link"
                aria-label="Visit my GitHub profile (opens in new tab)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
                 GitHub
             </a>
-            
-            <a href="https://www.linkedin.com/in/rocajuanma/" 
-               target="_blank" 
-               rel="noopener noreferrer" 
+
+            <a href="https://www.linkedin.com/in/rocajuanma/"
+               target="_blank"
+               rel="noopener noreferrer"
                class="social-link linkedin-link"
                aria-label="Visit my LinkedIn profile (opens in new tab)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
                 LinkedIn
             </a>
-            
-            <a href="https://gitlab.com/0xjuanma" 
-               target="_blank" 
-               rel="noopener noreferrer" 
+
+            <a href="https://gitlab.com/0xjuanma"
+               target="_blank"
+               rel="noopener noreferrer"
                class="social-link gitlab-link"
                aria-label="Visit my GitLab profile (opens in new tab)">
-                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="currentColor" d="M4.5 0L6.9 9H1.8z"/>
                     <path fill="currentColor" d="M19.5 0L17.1 9h5.1z"/>
                     <path fill="currentColor" d="M6.9 9h10.2L12 24z"/>
@@ -612,91 +557,139 @@
                 GitLab
             </a>
         </nav>
-        
+
         <section class="projects-section" aria-labelledby="projects-heading">
             <h2 class="projects-title" id="projects-heading">Projects</h2>
-            <a href="https://github.com/0xjuanma/anvil" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="project-card"
-               aria-label="Anvil project on GitHub (opens in new tab)">
-                <div class="project-card-inner">
-                    <div class="project-logo-container">
-                        <img src="https://raw.githubusercontent.com/0xjuanma/anvil/master/assets/anvil-2.0.png" 
-                             alt="Anvil logo" 
+
+            <details class="project-row anvil-row">
+                <summary class="project-summary" aria-label="Anvil — expand to see details">
+                    <span class="project-index" aria-hidden="true">01</span>
+                    <span class="project-emoji" aria-hidden="true">🔨</span>
+                    <span class="project-name">Anvil</span>
+                    <svg class="project-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="project-body">
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/anvil/master/assets/anvil-2.0.png"
+                             alt="Anvil logo"
                              class="project-logo"
                              loading="lazy">
-                    </div>
-                    <div class="project-content">
-                        <div class="project-name">
-                            <span class="project-emoji">🔨</span>
-                            Anvil
-                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
-                            </svg>
-                        </div>
                         <p class="project-description">
                             CLI tool that makes app setup, configuration management, and onboarding easier. Automates boring setup steps and helps keep everything consistent.
                         </p>
-                    </div>
-                </div>
-            </a>
-
-            <a href="https://github.com/0xjuanma/helm" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="project-card helm-card"
-               aria-label="Helm project on GitHub (opens in new tab)">
-                <div class="project-card-inner">
-                    <div class="project-logo-container">
-                        <img src="https://raw.githubusercontent.com/0xjuanma/helm/main/assets/helm.png" 
-                             alt="Helm logo" 
-                             class="project-logo"
-                             loading="lazy">
-                    </div>
-                    <div class="project-content">
-                        <div class="project-name">
-                            <span class="project-emoji">⏳</span>
-                            Helm
-                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <a href="https://github.com/0xjuanma/anvil"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Anvil on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
                             </svg>
-                        </div>
+                        </a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project-row helm-row">
+                <summary class="project-summary" aria-label="Helm — expand to see details">
+                    <span class="project-index" aria-hidden="true">02</span>
+                    <span class="project-emoji" aria-hidden="true">⏳</span>
+                    <span class="project-name">Helm</span>
+                    <svg class="project-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="project-body">
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/helm/main/assets/helm.png"
+                             alt="Helm logo"
+                             class="project-logo"
+                             loading="lazy">
                         <p class="project-description">
                             Minimalistic TUI Pomodoro-like timer focused on protecting deep work sessions. Offers ready-made workflows and customization straight from the terminal.
                         </p>
-                    </div>
-                </div>
-            </a>
-
-            <a href="https://github.com/0xjuanma/golazo" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="project-card golazo-card"
-               aria-label="Golazo project on GitHub (opens in new tab)">
-                <div class="project-card-inner">
-                    <div class="project-logo-container">
-                        <img src="https://raw.githubusercontent.com/0xjuanma/golazo/main/assets/golazo-logo.png" 
-                             alt="Golazo logo" 
-                             class="project-logo"
-                             loading="lazy">
-                    </div>
-                    <div class="project-content">
-                        <div class="project-name">
-                            <span class="project-emoji">⚽</span>
-                            Golazo
-                            <svg class="external-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <a href="https://github.com/0xjuanma/helm"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Helm on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
                             </svg>
-                        </div>
+                        </a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="project-row golazo-row">
+                <summary class="project-summary" aria-label="Golazo — expand to see details">
+                    <span class="project-index" aria-hidden="true">03</span>
+                    <span class="project-emoji" aria-hidden="true">⚽</span>
+                    <span class="project-name">Golazo</span>
+                    <svg class="project-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="project-body">
+                    <div class="project-body-inner">
+                        <img src="https://raw.githubusercontent.com/0xjuanma/golazo/main/assets/golazo-logo.png"
+                             alt="Golazo logo"
+                             class="project-logo"
+                             loading="lazy">
                         <p class="project-description">
                             Terminal app for keeping up with live football. Check scores, match events, and stats from major leagues without leaving your terminal.
                         </p>
+                        <a href="https://github.com/0xjuanma/golazo"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="project-link"
+                           aria-label="View Golazo on GitHub (opens in new tab)">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zm-2 16H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7h-7z"/>
+                            </svg>
+                        </a>
                     </div>
                 </div>
-            </a>
+            </details>
         </section>
     </main>
+
+    <script>
+        document.querySelectorAll('.project-row').forEach(details => {
+            const body = details.querySelector('.project-body');
+            const summary = details.querySelector('.project-summary');
+
+            summary.addEventListener('click', e => {
+                e.preventDefault();
+
+                if (details.open) {
+                    body.style.maxHeight = body.scrollHeight + 'px';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => { body.style.maxHeight = '0'; });
+                    });
+                    body.addEventListener('transitionend', () => {
+                        details.removeAttribute('open');
+                        body.style.maxHeight = '';
+                    }, { once: true });
+                } else {
+                    details.setAttribute('open', '');
+                    const target = body.scrollHeight;
+                    body.style.maxHeight = '0';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => { body.style.maxHeight = target + 'px'; });
+                    });
+                    body.addEventListener('transitionend', () => {
+                        body.style.maxHeight = 'none';
+                    }, { once: true });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
