@@ -2,7 +2,7 @@ name: Update posts index
 
 on:
   push:
-    branches: [main]
+    branches: [site]
     paths:
       - "posts/**.html"
 
