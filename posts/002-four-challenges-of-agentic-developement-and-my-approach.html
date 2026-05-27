@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>The four challenges of agentic development · Juanma Roca</title>
+    <meta name="title" content="The four challenges of agentic development">
+    <meta name="description" content="Where agentic development breaks down, and how I built a system to address each of the four challenges I kept hitting.">
+    <meta name="author" content="Juanma Roca">
+    <meta name="date" content="2026-05-25">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The four challenges of agentic development">
+    <meta property="og:description" content="Where agentic development breaks down, and how I built a system to address each of the four challenges I kept hitting.">
+    <meta property="og:image" content="https://avatars.githubusercontent.com/u/19920356?v=4&s=300">
+    <meta property="og:url" content="https://0xjuanma.com/posts/001-claude-system.html">
+
+    <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/19920356?v=4&s=300">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Design Tokens (mirrors 0xjuanma.com) ─────────────────────── */
+        :root {
+            --color-bg:          #000000;
+            --color-surface:     #0a0a0a;
+            --color-surface-2:   #111111;
+            --color-border:      #222222;
+            --color-border-mid:  #333333;
+            --color-text:        #ffffff;
+            --color-text-muted:  #888888;
+            --color-text-sub:    #cccccc;
+            --color-accent:      #f78166;
+
+            /* per-challenge accents (mirror project-row palette) */
+            --c-drift:        #F97316;
+            --c-onboarding:   #0EA5E9;
+            --c-corrections:  #22C55E;
+            --c-hallucination:#c570ff;
+
+            --font-serif:  'Playfair Display', Georgia, serif;
+            --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            --font-mono:   'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+            --radius-sm:  4px;
+            --radius-md:  8px;
+
+            --space-xs:   0.25rem;
+            --space-sm:   0.5rem;
+            --space-md:   1rem;
+            --space-lg:   1.5rem;
+            --space-xl:   2rem;
+            --space-2xl:  3rem;
+            --space-3xl:  4.5rem;
+
+            --max-width-prose:  680px;
+            --max-width-hero:   560px;
+            --transition: 0.2s ease;
+        }
+
+        /* ── Grain overlay ──────────────────────────────────────────────── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px;
+        }
+
+        /* ── Reset ──────────────────────────────────────────────────────── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ── Skip link ──────────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-accent);
+            color: #000;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            z-index: 1000;
+            transition: top var(--transition);
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ── Layout ─────────────────────────────────────────────────────── */
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            min-height: 100vh;
+            padding: var(--space-xl) var(--space-md) var(--space-3xl);
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width-prose);
+            margin: 0 auto;
+        }
+
+        /* ── Top nav: back link ─────────────────────────────────────────── */
+        .top-nav {
+            max-width: var(--max-width-prose);
+            margin: 0 auto var(--space-2xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            transition: color var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .back-link:hover { color: var(--color-accent); }
+
+        .repo-link {
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            font-family: var(--font-mono);
+            padding: 0.4rem 0.7rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            transition: color var(--transition), border-color var(--transition);
+        }
+        .repo-link:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+        /* ── Article header ─────────────────────────────────────────────── */
+        article header {
+            text-align: left;
+            margin-bottom: var(--space-2xl);
+            padding-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .eyebrow {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: var(--space-md);
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.75rem;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--color-text);
+            line-height: 1.1;
+            margin-bottom: var(--space-md);
+
+            clip-path: inset(0 100% 0 0);
+            animation: wipeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        }
+
+        @keyframes wipeIn { to { clip-path: inset(0 0% 0 0); } }
+
+        .deck {
+            font-size: 1.1rem;
+            color: var(--color-text-sub);
+            line-height: 1.55;
+            max-width: 580px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .meta {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.04em;
+            font-family: var(--font-mono);
+        }
+        .meta .dot { margin: 0 var(--space-sm); color: var(--color-border-mid); }
+        .meta .byline-link {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: color var(--transition), border-color var(--transition);
+        }
+        .meta .byline-link:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        /* ── Article body ───────────────────────────────────────────────── */
+        article p {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--color-text-sub);
+            margin-bottom: var(--space-md);
+        }
+        article p strong { color: var(--color-text); font-weight: 600; }
+        article p em { color: var(--color-text); font-style: italic; }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: 1.85rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--color-text);
+            line-height: 1.2;
+            margin: var(--space-2xl) 0 var(--space-md);
+        }
+
+        h3 {
+            font-family: var(--font-sans);
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--color-text);
+            margin: var(--space-xl) 0 var(--space-sm);
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-sm);
+        }
+
+        a { color: var(--color-accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color var(--transition); }
+        a:hover { border-bottom-color: var(--color-accent); }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.85em;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 0.1em 0.4em;
+            color: var(--color-text);
+        }
+
+        ul, ol {
+            margin: var(--space-md) 0 var(--space-lg);
+            padding-left: var(--space-lg);
+        }
+        li {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--color-text-sub);
+            margin-bottom: var(--space-xs);
+        }
+        li::marker { color: var(--color-text-muted); }
+
+        blockquote {
+            margin: var(--space-lg) 0;
+            padding: var(--space-md) var(--space-lg);
+            border-left: 3px solid var(--color-accent);
+            background: var(--color-surface);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            font-style: italic;
+            color: var(--color-text-sub);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        blockquote p { color: var(--color-text-sub); margin-bottom: 0; }
+
+        /* ── Section ─────────────────────────────────────────────────────── */
+        .section {
+            margin-top: var(--space-2xl);
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--section-accent, var(--color-text-muted));
+            margin-bottom: var(--space-sm);
+        }
+
+        /* ── Editorial-style challenge (no cards) ───────────────────────── */
+        .challenge-editorial {
+            display: grid;
+            grid-template-columns: 4.5rem 1fr;
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0 0;
+            padding-top: var(--space-2xl);
+            border-top: 1px solid var(--color-border);
+            position: relative;
+        }
+        .challenge-editorial:first-of-type {
+            border-top: 0;
+            padding-top: var(--space-xl);
+        }
+        .challenge-editorial::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 4.5rem;
+            height: 1px;
+            background: var(--section-accent);
+        }
+        .challenge-editorial:first-of-type::before { display: none; }
+
+        .challenge-num-big {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--section-accent);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .challenge-content { min-width: 0; }
+        .challenge-title-big {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--color-text);
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-bottom: var(--space-md);
+        }
+        .challenge-content p {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--color-text-sub);
+            margin-bottom: var(--space-md);
+        }
+        .challenge-content p:last-child { margin-bottom: 0; }
+        .resolves-line {
+            margin-top: var(--space-lg) !important;
+            font-size: 0.82rem !important;
+            color: var(--color-text-muted) !important;
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-sm);
+            letter-spacing: 0.02em;
+            line-height: 1.5 !important;
+        }
+        .resolves-line .arrow {
+            color: var(--section-accent);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        .challenge-editorial.c1 { --section-accent: var(--c-drift); }
+        .challenge-editorial.c2 { --section-accent: var(--c-onboarding); }
+        .challenge-editorial.c3 { --section-accent: var(--c-corrections); }
+        .challenge-editorial.c4 { --section-accent: var(--c-hallucination); }
+
+        /* ── Diagrams ───────────────────────────────────────────────────── */
+        .diagram {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin: var(--space-lg) 0;
+            overflow: hidden;
+        }
+        .diagram svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+        .diagram-caption {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            text-align: center;
+            margin-top: var(--space-sm);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ── Solution table ─────────────────────────────────────────────── */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-lg) 0;
+            font-size: 0.9rem;
+        }
+        .summary-table th,
+        .summary-table td {
+            text-align: left;
+            padding: 0.8rem 0.6rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .summary-table th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--color-border-mid);
+        }
+        .summary-table td { color: var(--color-text-sub); }
+        .summary-table .pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-family: var(--font-mono);
+        }
+        .pill.t1 { background: rgba(61,169,255,0.12); color: #3da9ff; border: 1px solid rgba(61,169,255,0.3); }
+        .pill.t2 { background: rgba(255,153,51,0.12); color: #ff9933; border: 1px solid rgba(255,153,51,0.3); }
+        .pill.t3 { background: rgba(197,112,255,0.14); color: #c570ff; border: 1px solid rgba(197,112,255,0.3); }
+
+        /* ── Tier callouts ──────────────────────────────────────────────── */
+        .tier {
+            position: relative;
+            margin: var(--space-xl) 0;
+        }
+        .tier-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--tier-accent);
+            margin-bottom: var(--space-xs);
+        }
+        .tier h2 {
+            margin-top: var(--space-sm);
+            color: var(--color-text);
+        }
+        .tier .addresses {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-md);
+            letter-spacing: 0.02em;
+        }
+        .tier .addresses .dot { color: var(--tier-accent); margin: 0 0.4rem; }
+        .tier.t1 { --tier-accent: #3da9ff; }
+        .tier.t2 { --tier-accent: #ff9933; }
+        .tier.t3 { --tier-accent: #c570ff; }
+
+        /* ── Takeaways ──────────────────────────────────────────────────── */
+        .takeaways {
+            margin-top: var(--space-2xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid var(--color-border);
+        }
+        .takeaway {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .takeaway:last-child { border-bottom: none; }
+        .takeaway-num {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            line-height: 1;
+            padding-top: 0.1rem;
+        }
+        .takeaway-body h4 {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--space-xs);
+        }
+        .takeaway-body p {
+            font-size: 0.92rem;
+            color: var(--color-text-sub);
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* ── Footer ─────────────────────────────────────────────────────── */
+        footer.article-footer {
+            margin-top: var(--space-3xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+        }
+        footer.article-footer .repo-cta {
+            display: inline-block;
+            margin-top: var(--space-md);
+            font-family: var(--font-mono);
+            color: var(--color-text-sub);
+            border-bottom: 1px solid transparent;
+        }
+        footer.article-footer .repo-cta:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        /* ── Entrance animations ────────────────────────────────────────── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        article header .deck,
+        article header .meta { opacity: 0; animation: fadeUp 0.6s ease 0.85s forwards; }
+        article header .meta { animation-delay: 1.05s; }
+
+        /* ── Mobile responsive ──────────────────────────────────────────── */
+        @media (max-width: 600px) {
+            body { padding: var(--space-lg) var(--space-md) var(--space-2xl); }
+            h1 { font-size: 2.1rem; }
+            h2 { font-size: 1.5rem; }
+            .top-nav { flex-direction: row; gap: var(--space-md); }
+            .summary-table { font-size: 0.82rem; }
+            .summary-table th, .summary-table td { padding: 0.6rem 0.4rem; }
+            .challenge-editorial {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+            .challenge-editorial::before { width: 3rem; }
+            .challenge-num-big { font-size: 2.5rem; }
+            .challenge-title-big { font-size: 1.3rem; }
+            .diagram { padding: var(--space-sm); }
+        }
+
+        /* ── Reduced motion ─────────────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            h1 { clip-path: none; }
+            article header .deck, article header .meta { opacity: 1; }
+        }
+
+        /* ── Print ──────────────────────────────────────────────────────── */
+        @media print {
+            body { background: #fff; color: #000; }
+            body::after { display: none; }
+            h1, h2, h3, h4 { color: #000; }
+            article p, li, .challenge-content p { color: #222; }
+            .diagram { background: #fafafa; border-color: #ddd; }
+            a { color: #b04020; }
+            .top-nav, footer.article-footer .repo-cta { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="top-nav" aria-label="Site navigation">
+        <a href="https://0xjuanma.com" class="back-link" aria-label="Back to home">← Juanma Roca</a>
+        <a href="https://github.com/0xjuanma/claude-system" class="repo-link" target="_blank" rel="noopener noreferrer">claude-system ↗</a>
+    </nav>
+
+    <main class="container" id="main-content">
+        <article>
+            <header>
+                <div class="eyebrow">Blog · Agentic Development</div>
+                <h1>The four challenges of agentic development</h1>
+                <p class="deck">
+                    After months of using AI coding tools across different projects, the same friction kept showing up.
+                    I built a small system to address each piece of it. Here's how it's shaped, and what it tries to fix.
+                </p>
+                <div class="meta">
+                    <a href="https://github.com/0xjuanma" target="_blank" rel="noopener noreferrer" class="byline-link" aria-label="Juanma Roca on GitHub (opens in new tab)">Juanma Roca</a>
+                    <span class="dot">·</span>
+                    <span>May 2026</span>
+                    <span class="dot">·</span>
+                    <span>~10 min read</span>
+                </div>
+            </header>
+
+            <p>
+                Agentic development is genuinely powerful. Claude Code, Cursor, Codex, etc; these tools can ship real work.
+                But after a few months of using them seriously, you start noticing the same friction showing up
+                everywhere: across projects, across teammates, across sessions. The friction isn't about the model
+                getting things wrong (this still happens but this system builds some guardrails). It's an structural approach to reduce repetition and create guardrails for more consistent results.
+            </p>
+
+            <p>
+                I've been iterating on a Claude framework for months. It's a personal system I keep refining as I use it.
+                What's emerged is less "a clever prompt library" and more an answer to four specific problems I kept
+                hitting. The framework lives in <code>~/.claude/configs/</code> and bootstraps with a single command.
+                But the more interesting story is <em>which problems</em> it solves, and why those problems aren't
+                solvable with better prompting.
+            </p>
+
+            <p>
+                This blog lays out the four challenges first, then walks through how each tier of the framework
+                addresses them.
+            </p>
+
+            <!-- ───────────────────────── The four challenges ─────────────────────── -->
+
+            <section class="section">
+                <div class="section-tag" style="color: var(--color-accent);">Part 1 · The Problem Landscape</div>
+                <h2>Where agentic dev breaks down</h2>
+                <p>
+                    Four issues and each one is solvable (or at least improvable!), but only if you treat it as a <em>system</em> problem rather than
+                    a "write a better prompt" problem. The order matters: each later challenge gets harder to address
+                    until you've solved the ones before it.
+                </p>
+
+                <article class="challenge-editorial c1">
+                    <div class="challenge-num-big">01</div>
+                    <div class="challenge-content">
+                        <h3 class="challenge-title-big">Context drift &amp; prompt sprawl</h3>
+                        <p>
+                            Same opening instructions every session. Same coding standards re-typed in every repo. Two
+                            teammates ask the model the same question and get different shapes of answer, because they
+                            prompted it differently, and the model has no shared baseline to fall back to.
+                        </p>
+                        <p>
+                            Prompts are ephemeral. Whatever you taught the model last session vanishes when the session
+                            ends. Drift accumulates silently: two engineers, same codebase, divergent "AI-assisted"
+                            outputs. "Just write better prompts" doesn't scale; there's nowhere durable for those
+                            prompts to live, and no shared vocabulary to write them in.
+                        </p>
+                        <p class="resolves-line"><span class="arrow">→</span> <span><strong style="color:var(--c-drift);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem">Addressed by</strong> &nbsp;Tier 1: primitives and layered configs.</span></p>
+                    </div>
+                </article>
+
+                <article class="challenge-editorial c2">
+                    <div class="challenge-num-big">02</div>
+                    <div class="challenge-content">
+                        <h3 class="challenge-title-big">Onboarding &amp; team alignment friction</h3>
+                        <p>
+                            A new teammate joins. To use AI effectively on the project they need: which conventions to
+                            follow, which commands the team relies on, which kinds of tasks have already been encoded,
+                            which mistakes the team has already corrected for. None of this is written down in a place the
+                            model can consume. It's folklore. Passed verbally, badly, slowly.
+                        </p>
+                        <p>
+                            Onboarding to "the team's way of working with Claude" takes weeks. The model could be
+                            productive on day one, but only if the team's accumulated standards are <em>loadable</em>, not
+                            lore.
+                        </p>
+                        <p class="resolves-line"><span class="arrow">→</span> <span><strong style="color:var(--c-onboarding);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem">Addressed by</strong> &nbsp;Tier 1: layered configs (global → project → repo) + bootstrap command.</span></p>
+                    </div>
+                </article>
+
+                <article class="challenge-editorial c3">
+                    <div class="challenge-num-big">03</div>
+                    <div class="challenge-content">
+                        <h3 class="challenge-title-big">Corrections that never stick</h3>
+                        <p>
+                            You tell the model "don't mock the database in integration tests." It nods. Next session, in a
+                            different repo, it mocks the database. You correct it again. And again. The lesson never
+                            travels. This can be partially improved using Claude's memory, but persistence is the key. Corrections are the highest-signal training data you produce, and they evaporate the
+                            moment the session ends.
+                        </p>
+                        <p>
+                            Repetition isn't just annoying; it actively erodes trust in the tool. If feedback doesn't
+                            compound, every session starts from the same baseline. The system gets no smarter; only the
+                            human does.
+                        </p>
+                        <p class="resolves-line"><span class="arrow">→</span> <span><strong style="color:var(--c-corrections);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem">Addressed by</strong> &nbsp;Tier 2: feedback memories + <code>/refine</code> + hooks.</span></p>
+                    </div>
+                </article>
+
+                <article class="challenge-editorial c4">
+                    <div class="challenge-num-big">04</div>
+                    <div class="challenge-content">
+                        <h3 class="challenge-title-big">Hallucination &amp; single-angle blind spots</h3>
+                        <p>
+                            The model reviews a PR and confidently flags an issue that doesn't exist, or misses one that
+                            does. A single context window, a single perspective, no independent verification. Confidence
+                            and correctness become uncorrelated. For high-stakes work (reviews, incidents, architecture
+                            audits) one-shot answers from a single agent aren't trustworthy.
+                        </p>
+                        <p>
+                            You need cross-checks, multiple angles, and convergence over iterations. Hallucination feels
+                            more like a workflow problem than a model problem. You can build patterns around it instead
+                            of waiting for it to improve.
+                        </p>
+                        <p class="resolves-line"><span class="arrow">→</span> <span><strong style="color:var(--c-hallucination);text-transform:uppercase;letter-spacing:.06em;font-size:.72rem">Addressed by</strong> &nbsp;Tier 3: multi-agent patterns (one-shot swarms, iterative validation).</span></p>
+                    </div>
+                </article>
+            </section>
+
+            <!-- ───────────────────────── How the framework addresses them ───────── -->
+
+            <section class="section">
+                <div class="section-tag" style="color: var(--color-accent);">Part 2 · The System</div>
+                <h2>Three tiers, each addressing a class of problem</h2>
+                <p>
+                    The framework is layered. Each tier sits on the one before it and addresses a different class of
+                    challenge:
+                </p>
+
+                <table class="summary-table" aria-label="Challenges mapped to tiers">
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Tier</th>
+                            <th>Primary mechanism</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Context drift &amp; prompt sprawl</td>
+                            <td><span class="pill t1">Tier 1</span></td>
+                            <td>Primitives + layered configs</td>
+                        </tr>
+                        <tr>
+                            <td>Onboarding &amp; alignment</td>
+                            <td><span class="pill t1">Tier 1</span></td>
+                            <td>One-clone bootstrap, shared vocabulary</td>
+                        </tr>
+                        <tr>
+                            <td>Corrections that never stick</td>
+                            <td><span class="pill t2">Tier 2</span></td>
+                            <td>Feedback memories + <code>/refine</code> + hooks</td>
+                        </tr>
+                        <tr>
+                            <td>Hallucination &amp; single-angle bias</td>
+                            <td><span class="pill t3">Tier 3</span></td>
+                            <td>Parallel swarms + iterative verification</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- TIER 1 -->
+                <div class="tier t1">
+                    <div class="tier-label">Tier 1 · Essential Blocks</div>
+                    <h2>Give the model a durable, shared vocabulary</h2>
+                    <p class="addresses">
+                        resolves <span class="dot">·</span> context drift <span class="dot">·</span> prompt sprawl <span class="dot">·</span> onboarding friction
+                    </p>
+                    <p>
+                        The fix for drift and onboarding friction isn't "better prompts"; it's primitives that live on
+                        disk, layered globally then per-project, with a single bootstrap entrypoint. Six primitives
+                        form the vocabulary every other tier reuses:
+                    </p>
+                    <ul>
+                        <li><strong>Rules</strong>: durable standards in markdown, referenced by commands or a top-level <code>CLAUDE.md</code>.</li>
+                        <li><strong>Commands</strong>: slash invocations. Workflow ones like <code>/commit</code>, <code>/ship</code>, and micro ones like <code>/diff</code>, <code>/wip</code>.</li>
+                        <li><strong>Skills</strong>: structured guidance that sits between rules (always present) and commands (only run when you call them). They watch for context and load themselves when relevant.</li>
+                        <li><strong>Output styles</strong>: switchable communication modes such as concise-dev, code-reviewer, planning-mode.</li>
+                        <li><strong>Templates</strong>: shared output shapes (PR descriptions, reviews, ADRs). One source for many consumers.</li>
+                        <li><strong>Hooks &amp; agents</strong>: lifecycle hooks and expert personas. The substrate for Tiers 2 and 3.</li>
+                    </ul>
+                    <p>
+                        These layer in three scopes (global → project → repo), with specificity winning. The team's
+                        Kotlin style sits at the project layer; this repo's quirks sit at the repo layer; universal
+                        defaults like commit format sit globally. Standards live in versioned files, not in your head.
+                        The model loads them; you don't re-type them.
+                    </p>
+                    <p>
+                        Onboarding becomes a one-line operation: <code>git clone</code> + run <code>INITIALIZE.md</code>.
+                        A new teammate goes from zero to "follows our standards" in minutes, not weeks. Folklore
+                        becomes loadable.
+                    </p>
+                </div>
+
+                <!-- TIER 2 -->
+                <div class="tier t2">
+                    <div class="tier-label">Tier 2 · DRY &amp; Iteration</div>
+                    <h2>Help corrections compound over time</h2>
+                    <p class="addresses">
+                        resolves <span class="dot">·</span> corrections that never stick <span class="dot">·</span> feedback evaporating with the session
+                    </p>
+                    <p>
+                        DRY isn't just "don't repeat across repos"; it's "don't repeat across sessions." Tier 1 makes
+                        the blocks layer in <em>space</em>. Tier 2 makes them learn in <em>time</em>.
+                    </p>
+                    <p>
+                        This part is less a set of mechanical steps and more a re-wiring of how you work. Once the
+                        pattern takes hold, two beats start happening on their own:
+                    </p>
+                    <p>
+                        <strong>1 · Automate new primitives.</strong> The third time you've typed something (a review
+                        checklist, a deploy preamble, a refactor pattern) that's the signal to encode it as a command,
+                        skill, or rule. Five minutes of work, durable from there onward. It slowly becomes a reflex
+                        rather than a chore.
+                    </p>
+                    <p>
+                        <strong>2 · Iterate on what's already there.</strong> Every session leaves behind small
+                        observations: things you corrected, preferences you stated, edge cases you flagged. Most of
+                        that lives in an ephemeral memory layer and never travels further. The powerful pattern is
+                        translating that memory into your durable config layer. What was a one-off correction becomes
+                        a permanent rule. The primitives you already built don't stay frozen; they keep absorbing
+                        what you've learned about your own work.
+                    </p>
+                    <p>
+                        A concrete implementation of this loop is the <code>/refine</code> command, surfaced
+                        periodically when feedback accumulates. It gathers pending memories, routes each to the right
+                        rule file, suggests confidence-rated edits, and folds them into configs on your approval. Each
+                        run is one small iteration step on the primitives you've already built.
+                    </p>
+
+                    <!-- /refine pipeline diagram (simplified) -->
+                    <div class="diagram">
+                        <svg viewBox="0 0 900 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The /refine bridge: ephemeral feedback memories on one side, durable configs on the other, with /refine connecting them">
+                            <defs>
+                                <marker id="arrRefine" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                                    <path d="M0,0 L10,5 L0,10 z" fill="#ff9933"/>
+                                </marker>
+                            </defs>
+
+                            <!-- Column headers -->
+                            <text x="140" y="20" fill="#3da9ff" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="2">MEMORY · feedback</text>
+                            <text x="450" y="20" fill="#ff9933" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="2">/refine · the bridge</text>
+                            <text x="760" y="20" fill="#4dff8f" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="2">CONFIGS · durable rules</text>
+
+                            <!-- MEMORY column -->
+                            <rect x="20" y="36" width="240" height="160" rx="10" fill="#06080c" stroke="#3da9ff" stroke-dasharray="4 4"/>
+                            <rect x="32" y="60" width="216" height="32" rx="5" fill="#13181f" stroke="#1f2632"/>
+                            <text x="42" y="80" fill="#eef1f6" font-family="JetBrains Mono, monospace" font-size="10">feedback_drift.md</text>
+                            <text x="240" y="80" fill="#ff9933" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="end">pending</text>
+                            <rect x="32" y="100" width="216" height="32" rx="5" fill="#13181f" stroke="#1f2632" opacity="0.5"/>
+                            <text x="42" y="120" fill="#8b94a1" font-family="JetBrains Mono, monospace" font-size="10">feedback_pr.md</text>
+                            <text x="240" y="120" fill="#4dff8f" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="end">incorporated</text>
+                            <text x="140" y="178" fill="#8b94a1" text-anchor="middle" font-size="10" font-style="italic">~/.claude/projects/*/memory/</text>
+
+                            <!-- Arrow memory → /refine -->
+                            <line x1="265" y1="116" x2="335" y2="116" stroke="#ff9933" stroke-width="2" marker-end="url(#arrRefine)"/>
+
+                            <!-- /refine box (minimal) -->
+                            <rect x="340" y="36" width="220" height="160" rx="10" fill="#13181f" stroke="#ff9933" stroke-width="2"/>
+                            <text x="450" y="118" fill="#ff9933" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="28" font-weight="700">/refine</text>
+                            <text x="450" y="148" fill="#8b94a1" text-anchor="middle" font-size="11" font-style="italic">distill, route, apply</text>
+
+                            <!-- Arrow /refine → configs -->
+                            <line x1="565" y1="116" x2="635" y2="116" stroke="#ff9933" stroke-width="2" marker-end="url(#arrRefine)"/>
+
+                            <!-- CONFIGS column -->
+                            <rect x="640" y="36" width="240" height="160" rx="10" fill="#06080c" stroke="#4dff8f" stroke-dasharray="4 4"/>
+                            <rect x="652" y="60" width="216" height="32" rx="5" fill="#13181f" stroke="#4dff8f"/>
+                            <text x="662" y="80" fill="#eef1f6" font-family="JetBrains Mono, monospace" font-size="10">claude-guidelines.md</text>
+                            <text x="860" y="80" fill="#4dff8f" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="end">+ rule</text>
+                            <rect x="652" y="100" width="216" height="32" rx="5" fill="#13181f" stroke="#1f2632"/>
+                            <text x="662" y="120" fill="#8b94a1" font-family="JetBrains Mono, monospace" font-size="10">kotlin-style.md</text>
+                            <text x="760" y="178" fill="#8b94a1" text-anchor="middle" font-size="10" font-style="italic">~/.claude/configs/.../rules/</text>
+
+                            <!-- Footer summary line -->
+                            <text x="450" y="220" fill="#eef1f6" text-anchor="middle" font-size="11">friction accrues  →  /refine distills  →  configs evolve</text>
+                        </svg>
+                    </div>
+
+                    <blockquote>
+                        <p>Memory is ephemeral noise; configs are durable, shared, git-tracked.
+                            <code>/refine</code> is the bridge that promotes what's worth keeping; and only what's worth keeping.</p>
+                    </blockquote>
+                    <p>
+                        Both beats reinforce each other. Friction that hits a third time becomes a new primitive, and
+                        existing primitives keep getting refined as you keep working. The framework slowly tunes itself
+                        to how you actually work.
+                    </p>
+                </div>
+
+                <!-- TIER 3 -->
+                <div class="tier t3">
+                    <div class="tier-label">Tier 3 · Advanced Multi-Agent</div>
+                    <h2>Build verification patterns around hallucination</h2>
+                    <p class="addresses">
+                        resolves <span class="dot">·</span> single-perspective bias <span class="dot">·</span> confident wrongness on high-stakes work
+                    </p>
+                    <p>
+                        With self-improving blocks in place, you can compose patterns that fight hallucination at scale.
+                        Two families:
+                    </p>
+                    <p>
+                        <strong>One-shot swarm · parallel fan-out.</strong> A parent agent gathers context and spawns
+                        specialists in one message (kotlin-reviewer, python-reviewer, db-migration-expert) each in a
+                        fresh context window, reading only what it needs. They run in parallel; the parent synthesizes
+                        their reports against a shared template. Multi-perspective view at one moment, no
+                        cross-contamination. Commands: <code>/swarm-review</code>, <code>/swarm-incident</code>,
+                        <code>/swarm-deep-dive</code>, <code>/swarm-spike</code>.
+                    </p>
+
+                    <!-- One-shot swarm diagram -->
+                    <div class="diagram">
+                        <svg viewBox="0 0 900 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One-shot swarm: parent spawns specialists in parallel, then synthesizes their reports">
+                            <defs>
+                                <marker id="arrOne" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                                    <path d="M0,0 L10,5 L0,10 z" fill="#3da9ff"/>
+                                </marker>
+                            </defs>
+
+                            <!-- Parent -->
+                            <rect x="320" y="20" width="260" height="60" rx="8" fill="#13181f" stroke="#3da9ff" stroke-width="2"/>
+                            <text x="450" y="56" fill="#3da9ff" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="16" font-weight="600">/swarm-review</text>
+
+                            <!-- Fan-out arrows -->
+                            <line x1="400" y1="80" x2="200" y2="130" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+                            <line x1="450" y1="80" x2="450" y2="130" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+                            <line x1="500" y1="80" x2="700" y2="130" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+
+                            <!-- Specialists -->
+                            <rect x="80" y="135" width="200" height="50" rx="8" fill="#13181f" stroke="#ff9933"/>
+                            <text x="180" y="166" fill="#ff9933" text-anchor="middle" font-size="13" font-weight="600">kotlin-reviewer</text>
+
+                            <rect x="350" y="135" width="200" height="50" rx="8" fill="#13181f" stroke="#ff9933"/>
+                            <text x="450" y="166" fill="#ff9933" text-anchor="middle" font-size="13" font-weight="600">python-reviewer</text>
+
+                            <rect x="620" y="135" width="200" height="50" rx="8" fill="#13181f" stroke="#ff9933"/>
+                            <text x="720" y="166" fill="#ff9933" text-anchor="middle" font-size="13" font-weight="600">db-migration-expert</text>
+
+                            <!-- Fan-in arrows -->
+                            <line x1="180" y1="185" x2="400" y2="225" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+                            <line x1="450" y1="185" x2="450" y2="225" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+                            <line x1="720" y1="185" x2="500" y2="225" stroke="#3da9ff" stroke-width="1.5" marker-end="url(#arrOne)"/>
+
+                            <!-- Synthesis -->
+                            <rect x="320" y="230" width="260" height="40" rx="8" fill="#13181f" stroke="#4dff8f" stroke-width="2"/>
+                            <text x="450" y="256" fill="#4dff8f" text-anchor="middle" font-size="13" font-weight="600">Synthesis → unified review</text>
+                        </svg>
+                    </div>
+
+                    <p>
+                        <strong>Iterative swarm · sequential + inner verification.</strong> A baseline (v1) is
+                        produced; then each subsequent iteration is itself a parallel mini-swarm (verifier,
+                        gap-finder, cross-referencer) validating and correcting the prior version. The loop
+                        early-terminates when two consecutive iterations agree (verifier finds zero corrections,
+                        gap-finder finds no new gaps). Residual error rate at that point is low. Commands:
+                        <code>/go</code> (≤3 iterations, inline), <code>/fly</code> (≤10 iterations, versioned spike
+                        folder), <code>/slice</code> (phased execution plan).
+                    </p>
+
+                    <!-- Iterative swarm diagram (simplified) -->
+                    <div class="diagram">
+                        <svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Iterative swarm: v1 baseline, then a verification mini-swarm produces v2, early-terminating when v3 matches v2">
+                            <defs>
+                                <marker id="arrIter" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                                    <path d="M0,0 L10,5 L0,10 z" fill="#c570ff"/>
+                                </marker>
+                            </defs>
+
+                            <!-- v1 baseline -->
+                            <rect x="40" y="40" width="160" height="100" rx="10" fill="#13181f" stroke="#3da9ff" stroke-width="2"/>
+                            <text x="120" y="78" fill="#3da9ff" text-anchor="middle" font-size="18" font-weight="700">v1</text>
+                            <text x="120" y="105" fill="#eef1f6" text-anchor="middle" font-size="12">baseline</text>
+
+                            <!-- Arrow v1 → v2 -->
+                            <line x1="200" y1="90" x2="245" y2="90" stroke="#c570ff" stroke-width="2" marker-end="url(#arrIter)"/>
+
+                            <!-- v2 inner swarm -->
+                            <rect x="250" y="40" width="380" height="100" rx="10" fill="#13181f" stroke="#ff9933" stroke-width="2"/>
+                            <text x="440" y="62" fill="#ff9933" text-anchor="middle" font-size="14" font-weight="700">v2 · inner swarm</text>
+
+                            <rect x="273" y="76" width="106" height="50" rx="6" fill="#06080c" stroke="#4dff8f"/>
+                            <text x="326" y="106" fill="#4dff8f" text-anchor="middle" font-size="12" font-weight="600">verifier</text>
+
+                            <rect x="387" y="76" width="106" height="50" rx="6" fill="#06080c" stroke="#4dff8f"/>
+                            <text x="440" y="106" fill="#4dff8f" text-anchor="middle" font-size="12" font-weight="600">gap-finder</text>
+
+                            <rect x="501" y="76" width="106" height="50" rx="6" fill="#06080c" stroke="#4dff8f"/>
+                            <text x="554" y="106" fill="#4dff8f" text-anchor="middle" font-size="12" font-weight="600">cross-ref</text>
+
+                            <!-- Arrow v2 → v3 -->
+                            <line x1="630" y1="90" x2="675" y2="90" stroke="#c570ff" stroke-width="2" marker-end="url(#arrIter)"/>
+
+                            <!-- v3 consensus -->
+                            <rect x="680" y="40" width="180" height="100" rx="10" fill="#13181f" stroke="#4dff8f" stroke-width="2"/>
+                            <text x="770" y="70" fill="#4dff8f" text-anchor="middle" font-size="14" font-weight="700">v3 ≈ v2</text>
+                            <text x="770" y="90" fill="#eef1f6" text-anchor="middle" font-size="11">consensus</text>
+                            <text x="770" y="118" fill="#4dff8f" text-anchor="middle" font-size="13" font-weight="600">✓ early terminate</text>
+                        </svg>
+                    </div>
+
+                    <p>
+                        The trade-off is explicit. One-shot trades depth for breadth; great for PR reviews and
+                        incident triage. Iterative trades time for confidence; great for spikes and architecture
+                        decisions where being right matters more than being fast.
+                    </p>
+                    <p>
+                        Both families output to shared templates (Tier 1) and feed back into rules via
+                        <code>/refine</code> (Tier 2). The composition matters: Tier 3 only works because Tiers 1 and
+                        2 are already in place.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ───────────────────────── Takeaways ─────────────────────── -->
+
+            <section class="takeaways">
+                <h2>Three takeaways</h2>
+
+                <p>
+                    Zoomed out, the framework looks like a stack. Six primitives at the base, composed into commands
+                    and skills, composed again into advanced multi-agent workflows. Each layer reuses the one below
+                    it, so nothing gets rebuilt from scratch.
+                </p>
+
+                <!-- Building-blocks composition diagram (stacked, no lines) -->
+                <div class="diagram">
+                    <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Building blocks: six primitives compose into commands and skills, which compose into advanced multi-agent workflows">
+
+                        <!-- Layer labels (left edge) -->
+                        <text x="20" y="135" fill="#c570ff" font-size="10" font-weight="700" letter-spacing="2.5">LAYER 3</text>
+                        <text x="20" y="151" fill="#8b94a1" font-size="9" letter-spacing="0.5">advanced workflows</text>
+
+                        <text x="20" y="205" fill="#ff9933" font-size="10" font-weight="700" letter-spacing="2.5">LAYER 2</text>
+                        <text x="20" y="221" fill="#8b94a1" font-size="9" letter-spacing="0.5">composed skills</text>
+
+                        <text x="20" y="275" fill="#3da9ff" font-size="10" font-weight="700" letter-spacing="2.5">LAYER 1</text>
+                        <text x="20" y="291" fill="#8b94a1" font-size="9" letter-spacing="0.5">primitives</text>
+
+                        <!-- ============ LAYER 3 · 2 advanced workflows ============ -->
+                        <rect x="130" y="110" width="367" height="60" rx="8" fill="#13181f" stroke="#c570ff" stroke-width="2"/>
+                        <text x="313" y="138" fill="#c570ff" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">/swarm-review</text>
+                        <text x="313" y="158" fill="#eef1f6" text-anchor="middle" font-size="11">multi-agent review · parallel specialists</text>
+
+                        <rect x="503" y="110" width="367" height="60" rx="8" fill="#13181f" stroke="#c570ff" stroke-width="2"/>
+                        <text x="686" y="138" fill="#c570ff" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" font-weight="600">/go</text>
+                        <text x="686" y="158" fill="#eef1f6" text-anchor="middle" font-size="11">iterative validation · inner verification swarm</text>
+
+                        <!-- ============ LAYER 2 studs (sit on top of L2 bricks) ============ -->
+                        <circle cx="182" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="252" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="322" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="430" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="500" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="570" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="678" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="748" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+                        <circle cx="818" cy="175" r="3" fill="#ff9933" opacity="0.7"/>
+
+                        <!-- ============ LAYER 2 · 3 composed skills ============ -->
+                        <rect x="130" y="180" width="243" height="60" rx="8" fill="#13181f" stroke="#ff9933" stroke-width="2"/>
+                        <text x="252" y="208" fill="#ff9933" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">/commit · /ship</text>
+                        <text x="252" y="228" fill="#eef1f6" text-anchor="middle" font-size="11">workflow commands</text>
+
+                        <rect x="378" y="180" width="243" height="60" rx="8" fill="#13181f" stroke="#ff9933" stroke-width="2"/>
+                        <text x="500" y="208" fill="#ff9933" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">/review-code</text>
+                        <text x="500" y="228" fill="#eef1f6" text-anchor="middle" font-size="11">code review skill</text>
+
+                        <rect x="626" y="180" width="243" height="60" rx="8" fill="#13181f" stroke="#ff9933" stroke-width="2"/>
+                        <text x="748" y="208" fill="#ff9933" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">/refine</text>
+                        <text x="748" y="228" fill="#eef1f6" text-anchor="middle" font-size="11">self-improvement loop</text>
+
+                        <!-- ============ LAYER 1 studs (sit on top of L1 bricks) ============ -->
+                        <circle cx="160" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="190" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="220" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="284" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="314" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="344" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="408" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="438" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="468" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="532" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="562" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="592" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="656" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="686" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="716" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="780" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="810" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+                        <circle cx="840" cy="245" r="3" fill="#3da9ff" opacity="0.7"/>
+
+                        <!-- ============ LAYER 1 · 6 primitives ============ -->
+                        <rect x="130" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="190" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Rules</text>
+                        <text x="190" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">durable standards</text>
+
+                        <rect x="254" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="314" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Commands</text>
+                        <text x="314" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">slash invocations</text>
+
+                        <rect x="378" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="438" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Skills</text>
+                        <text x="438" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">auto-triggered</text>
+
+                        <rect x="502" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="562" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Output styles</text>
+                        <text x="562" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">comms modes</text>
+
+                        <rect x="626" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="686" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Templates</text>
+                        <text x="686" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">output shapes</text>
+
+                        <rect x="750" y="250" width="120" height="60" rx="6" fill="#0a1622" stroke="#3da9ff" stroke-width="1.5"/>
+                        <text x="810" y="278" fill="#3da9ff" text-anchor="middle" font-size="12" font-weight="600">Hooks · Agents</text>
+                        <text x="810" y="296" fill="#8b94a1" text-anchor="middle" font-size="9">lifecycle + personas</text>
+                    </svg>
+                    <div class="diagram-caption">Primitives stack into commands; commands stack into workflows. Each upper layer reuses the layer below, never rebuilt from scratch.</div>
+                </div>
+
+                <div class="takeaway">
+                    <div class="takeaway-num">01</div>
+                    <div class="takeaway-body">
+                        <h4>Treat it as a system</h4>
+                        <p>Drift, repetition, hallucination. These usually aren't prompt-writing problems. They're
+                            closer to workflow problems, and the fix often lives outside the chat window.</p>
+                    </div>
+                </div>
+
+                <div class="takeaway">
+                    <div class="takeaway-num">02</div>
+                    <div class="takeaway-body">
+                        <h4>Let it learn</h4>
+                        <p>Corrections are the highest-signal training data you produce. A feedback layer plus
+                            <code>/refine</code> plus hooks turns them into permanent improvements that compound
+                            across sessions.</p>
+                    </div>
+                </div>
+
+                <div class="takeaway">
+                    <div class="takeaway-num">03</div>
+                    <div class="takeaway-body">
+                        <h4>Then compose</h4>
+                        <p>With a solid base, multi-agent patterns that address hallucination become a one-line
+                            command, not a research project. Composition is where the leverage shows up, and the
+                            substrate is what makes it cheap.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>What's next</h2>
+                <p>
+                    The building-blocks pattern has always felt more natural to me, and this framework is the result of
+                    several iterations and corrections I've found useful along the way. It's open sourced, designed as
+                    the foundation for your own process, and built to be shared.
+                </p>
+                <p>
+                    I'll keep iterating on it as I refine my own development workflow. I hope it sparks ideas, or
+                    confirms patterns you've already arrived at on your own. The goal was always to help more engineers
+                    shape or iterate on their own agentic process.
+                </p>
+            </section>
+
+            <footer class="article-footer">
+                <div>Juanma Roca · 2026</div>
+                <a href="https://github.com/0xjuanma/claude-system" class="repo-cta" target="_blank" rel="noopener noreferrer">github.com/0xjuanma/claude-system ↗</a>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>
