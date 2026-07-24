@@ -46,6 +46,7 @@
             --color-text-muted:  #888888;
             --color-text-sub:    #cccccc;
             --color-accent:      #f78166;
+            --color-hover-accent: #e8e8e8;
 
             --font-serif:  'Playfair Display', Georgia, serif;
             --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
@@ -153,7 +154,7 @@
         }
 
         .profile-link:hover .profile-image {
-            border-color: var(--color-accent);
+            border-color: var(--color-hover-accent);
             transform: scale(1.04);
         }
 
@@ -295,7 +296,8 @@
             transition: background var(--transition);
         }
 
-        .project-summary:hover {
+        .project-summary:hover,
+        .post-summary:hover {
             background: rgba(255, 255, 255, 0.02);
         }
 
@@ -457,7 +459,6 @@
         }
 
         .post-row {
-            --post-accent: #FBBF24;
             border-left: 2px solid transparent;
             border-bottom: 1px solid var(--color-border);
             transition: border-left-color var(--transition);
@@ -469,7 +470,7 @@
 
         .post-row[open],
         .post-row:hover {
-            border-left-color: var(--post-accent);
+            border-left-color: var(--color-hover-accent);
         }
 
         /* suppress browser default triangle marker */
@@ -488,10 +489,6 @@
             cursor: pointer;
             user-select: none;
             transition: background var(--transition), padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .post-summary:hover {
-            background: rgba(255, 255, 255, 0.02);
         }
 
         .post-row:hover > .post-summary,
@@ -526,7 +523,7 @@
 
         .post-row[open] .post-chevron {
             transform: rotate(180deg);
-            color: var(--post-accent);
+            color: var(--color-hover-accent);
         }
 
         /* expanded body */
@@ -550,28 +547,36 @@
         .post-link {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: 0.8rem;
+            gap: 6px;
+            font-size: 0.78rem;
             font-weight: 500;
-            color: var(--post-accent);
+            color: var(--color-text-sub);
             text-decoration: none;
             letter-spacing: 0.02em;
-            transition: opacity var(--transition);
+            padding: 6px 12px;
+            border: 1px solid var(--color-border-mid);
+            border-radius: 999px;
+            transition: border-color var(--transition), color var(--transition), background var(--transition);
         }
 
         .post-link:hover {
-            opacity: 0.75;
+            border-color: var(--color-hover-accent);
+            color: var(--color-text);
+            background: color-mix(in srgb, var(--color-hover-accent) 8%, transparent);
+        }
+
+        .post-link svg {
+            flex-shrink: 0;
         }
 
         .post-summary:focus-visible {
-            outline: 2px solid var(--post-accent);
+            outline: 2px solid var(--color-hover-accent);
             outline-offset: -2px;
         }
 
         .post-link:focus-visible {
-            outline: 2px solid var(--post-accent);
-            outline-offset: 3px;
-            border-radius: var(--radius-sm);
+            outline: 2px solid var(--color-hover-accent);
+            outline-offset: 2px;
         }
 
         /* ── Entrance animations ────────────────────────────────────────── */
@@ -623,7 +628,7 @@
         /* ── Focus-visible states ───────────────────────────────────────── */
 
         .profile-link:focus-visible {
-            outline: 2px solid var(--color-accent);
+            outline: 2px solid var(--color-hover-accent);
             outline-offset: 4px;
             border-radius: 50%;
         }
